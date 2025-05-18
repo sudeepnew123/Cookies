@@ -5,10 +5,10 @@ import threading
 
 app = Flask(__name__)
 
-BOT_TOKEN = "YOUR_BOT_TOKEN"
+BOT_TOKEN = "7595186215:AAGESt6D3MSw5bMi4hqLE71pd4j7kt6GZEs"
 URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 CATBOX_URL = "https://files.catbox.moe/81o4p9.txt"
-WELCOME_PHOTO = "https://i.ibb.co/HTG8zXnm/IMG-20250516-095810-290.jpg"  # Replace with your image link
+WELCOME_PHOTO = "https://i.ibb.co/HTG8zXnm/IMG-20250516-095810-290.jpg"
 
 def send_photo(chat_id, photo_url, caption, reply_markup=None):
     payload = {
@@ -44,6 +44,7 @@ def send_document(chat_id, file_url, caption=""):
 @app.route("/", methods=["POST"])
 def webhook():
     data = request.json
+    print("Received update:", data)
 
     if "message" in data:
         message = data["message"]
@@ -63,15 +64,14 @@ def webhook():
         user = query["from"]["first_name"]
 
         if query["data"] == "generate":
-            loading_text = f"⏳ Generating cookies for {user}..."
-            edit_message(chat_id, msg_id, loading_text)
+            edit_message(chat_id, msg_id, f"⏳ Generating cookies for {user}...")
 
-            def finish():
+            def delayed_send():
                 time.sleep(4)
                 delete_message(chat_id, msg_id)
                 send_document(chat_id, CATBOX_URL, caption="🍪 Here are your cookies!")
 
-            threading.Thread(target=finish).start()
+            threading.Thread(target=delayed_send).start()
 
     return "ok"
 
